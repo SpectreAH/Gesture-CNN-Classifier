@@ -1,0 +1,30 @@
+{
+  "indices": [
+    934,
+    902,
+    667,
+    773,
+    2276
+  ],
+  "true_labels": [
+    "c",
+    "c",
+    "thumb",
+    "fist",
+    "c"
+  ],
+  "predicted_labels": [
+    "palm_moved",
+    "palm_moved",
+    "fist",
+    "fist_moved",
+    "palm_moved"
+  ],
+  "confidences": [
+    0.995537281036377,
+    0.9908728003501892,
+    0.9881196022033691,
+    0.7240288853645325,
+    0.7238576412200928
+  ]
+}

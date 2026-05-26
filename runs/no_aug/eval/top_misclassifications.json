@@ -1,0 +1,14 @@
+{
+  "indices": [
+    2696
+  ],
+  "true_labels": [
+    "palm"
+  ],
+  "predicted_labels": [
+    "c"
+  ],
+  "confidences": [
+    0.880025327205658
+  ]
+}
