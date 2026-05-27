@@ -14,6 +14,8 @@ model comparison, error analysis, and ablation studies.
 | `train.py`            | Training script    |
 | `evaluate.py`         | Confusion matrix, per-class metrics, Grad-CAM (only for CNN), errors    |
 | `requirements.txt`    | Python dependencies                                      |
+| `tune.py`             | Hyperparameters search                      |
+
 
 ## Setup
 
