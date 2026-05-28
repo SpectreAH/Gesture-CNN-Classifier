@@ -63,15 +63,6 @@ The eval step produces, in `runs/main/eval/`:
 ## Full experiment suite
 
 ```bash
-# Model comparison (use SAME settings, only --model changes)
-
-
-# Ablations on the custom model
-python train.py --data-root $DATA --out-dir runs/no_bn       --no-bn
-python train.py --data-root $DATA --out-dir runs/no_aug      --no-aug
-python train.py --data-root $DATA --out-dir runs/no_dropout  --dropout 0
-python train.py --data-root $DATA --out-dir runs/sgd         --optimizer sgd --lr 0.01
-```
 
 Each run produces `best.pt` (best-val-acc checkpoint) and `history.json`
 (per-epoch metrics + config + final test accuracy). Run `evaluate.py` on
