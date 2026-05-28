@@ -1,6 +1,5 @@
 """
-
-Produces (saved to --out-dir):
+Results(saved to --out-dir):
     confusion_matrix_norm.png      normalized confusion matrix
     confusion_matrix_raw.png       raw-count confusion matrix
     training_curves.png            train/val loss & accuracy over epochs

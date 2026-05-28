@@ -76,3 +76,7 @@ any of them to get its plots.
 
 - **Reproducibility.** All scripts seed `torch.manual_seed(42)` by default;
   the same seed is used in `evaluate.py` so the test split should match the training.
+
+- ** Data leakage **
+    A problem that arises is that the models test all the images doing so memorizing the "shape" of the hand which results in the 99.99 % accuracy and precision. But we know that it is not a real world application. So we should use a set for training one for testing and one for validating.
+    

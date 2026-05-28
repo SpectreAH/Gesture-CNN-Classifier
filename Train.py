@@ -84,13 +84,12 @@ def parse_args():
     p.add_argument("--image-size", type=int, default=128)
     p.add_argument("--optimizer", default="adam", choices=["adam", "sgd"])
     p.add_argument("--weight-decay", type=float, default=1e-4)
-    # --- ablation flags for the custom model ---
+    # ablation custom model (mainly for the custom CNN, but can be applied to others as well)
     p.add_argument("--no-bn", action="store_true",
                    help="(ablation) disable BatchNorm in the custom CNN")
     p.add_argument("--no-aug", action="store_true",
                    help="(ablation) disable data augmentation")
     p.add_argument("--dropout", type=float, default=0.5)
-    # --- misc ---
     p.add_argument("--out-dir", default="runs/run")
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--num-workers", type=int, default=4)
