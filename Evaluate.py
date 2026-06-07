@@ -214,6 +214,7 @@ def parse_args():
     p.add_argument("--batch-size", type=int, default=64)
     p.add_argument("--image-size", type=int, default=128)
     p.add_argument("--seed", type=int, default=42)
+    p.add_argument("--subject-split", action="store_true")
     return p.parse_args()
 
 
@@ -230,6 +231,7 @@ def main():
         image_size=args.image_size,
         augment=False,
         seed=args.seed,
+        subject_split=args.subject_split,
     )
 
     model = build_model(args.model, num_classes=10,

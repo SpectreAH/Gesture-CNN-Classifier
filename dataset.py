@@ -6,7 +6,7 @@ from pathlib import Path
 
 from PIL import Image
 import torch
-from torch.utils.data import Dataset, DataLoader, random_split
+from torch.utils.data import Dataset, DataLoader, Subset, random_split
 from torchvision import transforms
 
 
@@ -59,7 +59,6 @@ class LeapGestRecogDataset(Dataset):
 
     def __getitem__(self, idx):
         path, label = self.samples[idx]
-        # Near-infrared images are single-channel
         img = Image.open(path).convert("L")
         if self.transform is not None:
             img = self.transform(img)
@@ -109,6 +108,68 @@ class _TransformedSubset(Dataset):
         return self.transform(img), label
 
 
+# ---------------------------------------------------------------------------
+# Subject-level split (leakage-free)
+# ---------------------------------------------------------------------------
+def _subject_from_path(path):
+    """Extract the subject folder name ('00'..'09') from an image path.
+
+    LeapGestRecog layout is <root>/<subject>/<class>/<image>.png, so the
+    grandparent of the image path is the subject ID.
+    """
+    return Path(path).parent.parent.name
+
+
+def _split_by_subject(full_dataset, train_subjects, val_subjects, test_subjects):
+    """Assign WHOLE subjects to each split — no person appears in two splits."""
+    all_subjects = sorted({_subject_from_path(p) for p, _ in full_dataset.samples})
+
+    # Default 7 / 1 / 2 (~ 70/10/20) — keeps subjects 08 and 09 in test for stability
+    if train_subjects is None and val_subjects is None and test_subjects is None:
+        train_subjects = all_subjects[:7]
+        val_subjects = all_subjects[7:8]
+        test_subjects = all_subjects[8:]
+
+    train_subjects = set(train_subjects or [])
+    val_subjects = set(val_subjects or [])
+    test_subjects = set(test_subjects or [])
+
+    # ---- sanity checks ----
+    overlap = ((train_subjects & val_subjects)
+               | (train_subjects & test_subjects)
+               | (val_subjects & test_subjects))
+    if overlap:
+        raise ValueError(f"Subjects appear in more than one split: {sorted(overlap)}")
+
+    unknown = (train_subjects | val_subjects | test_subjects) - set(all_subjects)
+    if unknown:
+        raise ValueError(
+            f"Unknown subject IDs {sorted(unknown)}. "
+            f"Available subjects: {all_subjects}"
+        )
+
+    if not train_subjects or not val_subjects or not test_subjects:
+        raise ValueError("Each of train/val/test must include at least one subject.")
+
+    print(f"Subject split:")
+    print(f"  train: {sorted(train_subjects)}")
+    print(f"  val:   {sorted(val_subjects)}")
+    print(f"  test:  {sorted(test_subjects)}")
+
+    def _indices_for(subj_set):
+        return [i for i, (p, _) in enumerate(full_dataset.samples)
+                if _subject_from_path(p) in subj_set]
+
+    return (
+        Subset(full_dataset, _indices_for(train_subjects)),
+        Subset(full_dataset, _indices_for(val_subjects)),
+        Subset(full_dataset, _indices_for(test_subjects)),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Public entry point
+# ---------------------------------------------------------------------------
 def get_dataloaders(
     root,
     batch_size=64,
@@ -118,22 +179,37 @@ def get_dataloaders(
     val_split=0.15,
     test_split=0.15,
     seed=42,
+    subject_split=False,
+    train_subjects=None,
+    val_subjects=None,
+    test_subjects=None,
 ):
-    """Random 70/15/15 split into (train, val, test)
+    """Build train/val/test DataLoaders.
+
+    Default: random 70/15/15 split across all images. The same person's hand
+    appears in every split (subject leakage), inflating accuracy.
+
+    subject_split=True: assign WHOLE subjects to each split. No subject
+    appears in more than one. This is the honest evaluation.
     """
     train_tf, eval_tf = get_transforms(image_size=image_size, augment=augment)
-
-    # Load the full dataset with the eval transform; the train subset is wrapped
-    # below to use the train (augmented) transform instead.
     full = LeapGestRecogDataset(root, transform=eval_tf)
-    n = len(full)
-    n_test = int(n * test_split)
-    n_val = int(n * val_split)
-    n_train = n - n_val - n_test
 
-    gen = torch.Generator().manual_seed(seed)
-    train_set, val_set, test_set = random_split(full, [n_train, n_val, n_test], generator=gen)
+    if subject_split:
+        train_set, val_set, test_set = _split_by_subject(
+            full, train_subjects, val_subjects, test_subjects,
+        )
+    else:
+        n = len(full)
+        n_test = int(n * test_split)
+        n_val = int(n * val_split)
+        n_train = n - n_val - n_test
+        gen = torch.Generator().manual_seed(seed)
+        train_set, val_set, test_set = random_split(
+            full, [n_train, n_val, n_test], generator=gen,
+        )
 
+    # Wrap the train split so it uses the augmented transform
     train_set = _TransformedSubset(train_set, train_tf)
 
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True,
@@ -144,5 +220,6 @@ def get_dataloaders(
                              num_workers=num_workers, pin_memory=True)
 
     return train_loader, val_loader, test_loader
+
 
 print("Dataset and dataloader utilities loaded.")

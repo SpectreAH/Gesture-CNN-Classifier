@@ -93,6 +93,8 @@ def parse_args():
     p.add_argument("--out-dir", default="runs/run")
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--num-workers", type=int, default=4)
+    p.add_argument("--subject-split", action="store_true",
+                   help="Subject-level split (no person appears in two splits)")
     return p.parse_args()
 
 
@@ -119,6 +121,7 @@ def main():
         num_workers=args.num_workers,
         augment=not args.no_aug,
         seed=args.seed,
+        subject_split=args.subject_split, 
     )
     print(f"Train: {len(train_loader.dataset)} | "
           f"Val: {len(val_loader.dataset)} | "

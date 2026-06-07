@@ -1,0 +1,62 @@
+{
+  "palm": {
+    "precision": 0.4146341463414634,
+    "recall": 0.7225,
+    "f1": 0.5268915223336372,
+    "support": 400
+  },
+  "l": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 400
+  },
+  "fist": {
+    "precision": 0.05868544600938967,
+    "recall": 0.0625,
+    "f1": 0.06053268765133172,
+    "support": 400
+  },
+  "fist_moved": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 400
+  },
+  "thumb": {
+    "precision": 1.0,
+    "recall": 0.02,
+    "f1": 0.0392156862745098,
+    "support": 400
+  },
+  "index": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 400
+  },
+  "ok": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 400
+  },
+  "palm_moved": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 400
+  },
+  "c": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 400
+  },
+  "down": {
+    "precision": 0.21052631578947367,
+    "recall": 1.0,
+    "f1": 0.34782608695652173,
+    "support": 400
+  }
+}

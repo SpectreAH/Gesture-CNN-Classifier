@@ -72,6 +72,7 @@ def parse_args():
                    help="(custom only) disable BN for all trials")
     p.add_argument("--no-aug", action="store_true",
                    help="disable data augmentation for all trials")
+    p.add_argument("--subject-split", action="store_true")
 
     # misc
     p.add_argument("--skip-existing", action="store_true", default=True,
@@ -133,6 +134,8 @@ def build_command(args, cfg, out_dir):
         "--weight-decay", str(cfg["weight_decay"]),
         "--optimizer", cfg["optimizer"],
     ]
+    if args.subject_split:
+        cmd.append("--subject-split")
     if args.no_bn:
         cmd.append("--no-bn")
     if args.no_aug:
