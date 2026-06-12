@@ -9,16 +9,6 @@ covering all 10 gesture classes:
     gradcam_misclassified.png   the model's worst mistakes, with Grad-CAM
                                 showing where it was looking
 
-Only works on CNNs (custom, small) — the linear/logistic/mlp models have
-no convolutional layers, so there's nothing to localize.
-
-Usage
------
-    python gradcam_all.py --data-root archive/leapGestRecog \
-        --checkpoint runs/custom/best.pt --model custom \
-        --out-dir runs/custom/gradcam
-
-For a subject-split run, append --subject-split (matches training).
 """
 import argparse
 import json

@@ -3,20 +3,6 @@ Aggregate results from multiple training runs into one comparison table.
 
 Scans a directory tree for history.json files (saved by Train.py), then prints
 a sorted table and writes a CSV you can paste straight into your report.
-
-Usage
------
-Compare everything under runs/:
-    python compare.py --runs-dir runs
-
-Only the custom-model runs (your ablations live here):
-    python compare.py --runs-dir runs --model custom
-
-Sort by validation accuracy instead of test accuracy:
-    python compare.py --runs-dir runs --sort-by best_val_acc
-
-Write the CSV somewhere specific:
-    python compare.py --runs-dir runs --out report_table.csv
 """
 import argparse
 import csv
