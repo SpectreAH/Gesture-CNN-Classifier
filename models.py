@@ -24,7 +24,7 @@ class LogisticRegression(nn.Module):
 
     def forward(self, x):
         return self.linear(self.flatten(x))
-                                            #Output is raw logits; train with nn.CrossEntropyLoss (softmax is implicit)
+                                            
 
 class LinearRegression(nn.Module):
     """
@@ -135,7 +135,7 @@ class HandGestureCNN(nn.Module):
         return self.classifier(x)
 
 
-REGRESSION_MODELS = {"linear"}  # models trained with MSE on one-hot targets
+REGRESSION_MODELS = {"linear"}  
 
 
 def build_model(name, num_classes=10, image_size=128, **kwargs):

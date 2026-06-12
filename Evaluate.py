@@ -115,7 +115,7 @@ def find_misclassifications(y_true, y_pred, probs, top_k=20):
     wrong = np.where(y_true != y_pred)[0]
     if len(wrong) == 0:
         return []
-    confidences = probs[wrong, y_pred[wrong]]  # confidence in the WRONG class
+    confidences = probs[wrong, y_pred[wrong]]
     sorted_idx = wrong[np.argsort(-confidences)]
     return sorted_idx[:top_k].tolist()
 
@@ -164,7 +164,6 @@ def _find_target_layer(model):
             last_conv = module
     return last_conv
 
-#Will not work for non-convolutional models, but that's fine since Grad-CAM is only for CNNs
 def plot_gradcam_examples(model, loader, device, out_path, n_examples=8):
     target = _find_target_layer(model)
     if target is None:
@@ -241,26 +240,23 @@ def main():
     print("Running inference on test set...")
     preds, labels, probs = get_predictions(model, test_loader, device)
 
-    # Overall and per-class metrics
+
     print("\n-------------Test Metrics ----------------")
     print(classification_report(labels, preds, target_names=CLASS_NAMES,
                                 digits=4, zero_division=0))
     per_class_report(labels, preds, CLASS_NAMES, out_dir / "per_class.json")
 
-    # Confusion matrices
+
     plot_confusion_matrix(labels, preds, CLASS_NAMES,
                           out_dir / "confusion_matrix_norm.png", normalize=True)
     plot_confusion_matrix(labels, preds, CLASS_NAMES,
                           out_dir / "confusion_matrix_raw.png", normalize=False)
 
-    # Training curves
     history_path = Path(args.checkpoint).parent / "history.json"
     if history_path.exists():
         with open(history_path) as f:
             history = json.load(f)["history"]
         plot_training_curves(history, out_dir / "training_curves.png")
-
-    #most-confident wrong predictions
     wrong_idx = find_misclassifications(labels, preds, probs, top_k=20)
     with open(out_dir / "top_misclassifications.json", "w") as f:
         json.dump({

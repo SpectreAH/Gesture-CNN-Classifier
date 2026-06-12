@@ -36,8 +36,6 @@ def parse_args():
     p.add_argument("--data-root", required=True)
     p.add_argument("--model", required=True,
                    choices=["linear", "logistic", "mlp", "small", "custom"])
-
-    # Basic setup
     p.add_argument("--out-dir", default="runs/tune",
                    help="Parent directory for all trial subfolders")
     p.add_argument("--train-script", default="Train.py",
@@ -47,8 +45,6 @@ def parse_args():
     p.add_argument("--image-size", type=int, default=128)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--num-workers", type=int, default=0)
-
-    #search strategy
     p.add_argument("--mode", choices=["grid", "random"], default="grid",
                    help="grid = try every combination; random = sample n-trials")
     p.add_argument("--n-trials", type=int, default=None,
@@ -74,7 +70,6 @@ def parse_args():
                    help="disable data augmentation for all trials")
     p.add_argument("--subject-split", action="store_true")
 
-    # misc
     p.add_argument("--skip-existing", action="store_true", default=True,
                    help="Skip trials whose history.json already exists")
     p.add_argument("--dry-run", action="store_true",
@@ -101,8 +96,6 @@ def make_configs(args):
     else:
         combos = all_combos
 
-    # Only include a hyperparam in the trial name if it's actually being varied,
-    # so single-knob sweeps have short, readable names.
     varied = {k for k, v in space.items() if len(v) > 1}
 
     for combo in combos:
@@ -168,7 +161,7 @@ def main():
         print("\n(dry run — exiting without running anything)")
         return
 
-    #run all trials sequentially
+
     results = []
     for i, (name, cfg) in enumerate(configs, 1):
         trial_dir = out_root / name
@@ -192,7 +185,7 @@ def main():
                 print("\n\nInterrupted by user — summarising what we have so far...")
                 break
 
-        # collect result
+
         if history_path.exists():
             with open(history_path) as f:
                 h = json.load(f)
@@ -206,7 +199,7 @@ def main():
                 "num_params": h.get("num_params"),
             })
 
-    #summary
+
     if not results:
         print("\nNo successful results to summarise.")
         return

@@ -38,7 +38,6 @@ class LeapGestRecogDataset(Dataset):
             for class_dir in sorted(subject_dir.iterdir()):
                 if not class_dir.is_dir():
                     continue
-                # Folder name like "01_palm" can be equal to class index 0
                 try:
                     class_idx = int(class_dir.name.split("_")[0]) - 1
                 except ValueError:
@@ -107,10 +106,6 @@ class _TransformedSubset(Dataset):
         img = Image.open(path).convert("L")
         return self.transform(img), label
 
-
-# ---------------------------------------------------------------------------
-# Subject-level split (leakage-free)
-# ---------------------------------------------------------------------------
 def _subject_from_path(path):
     """Extract the subject folder name ('00'..'09') from an image path.
 
@@ -123,8 +118,6 @@ def _subject_from_path(path):
 def _split_by_subject(full_dataset, train_subjects, val_subjects, test_subjects):
     """Assign WHOLE subjects to each split — no person appears in two splits."""
     all_subjects = sorted({_subject_from_path(p) for p, _ in full_dataset.samples})
-
-    # Default 7 / 1 / 2 (~ 70/10/20) — keeps subjects 08 and 09 in test for stability
     if train_subjects is None and val_subjects is None and test_subjects is None:
         train_subjects = all_subjects[:7]
         val_subjects = all_subjects[7:8]
@@ -134,7 +127,7 @@ def _split_by_subject(full_dataset, train_subjects, val_subjects, test_subjects)
     val_subjects = set(val_subjects or [])
     test_subjects = set(test_subjects or [])
 
-    # ---- sanity checks ----
+
     overlap = ((train_subjects & val_subjects)
                | (train_subjects & test_subjects)
                | (val_subjects & test_subjects))
@@ -165,11 +158,6 @@ def _split_by_subject(full_dataset, train_subjects, val_subjects, test_subjects)
         Subset(full_dataset, _indices_for(val_subjects)),
         Subset(full_dataset, _indices_for(test_subjects)),
     )
-
-
-# ---------------------------------------------------------------------------
-# Public entry point
-# ---------------------------------------------------------------------------
 def get_dataloaders(
     root,
     batch_size=64,
@@ -209,7 +197,6 @@ def get_dataloaders(
             full, [n_train, n_val, n_test], generator=gen,
         )
 
-    # Wrap the train split so it uses the augmented transform
     train_set = _TransformedSubset(train_set, train_tf)
 
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True,

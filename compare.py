@@ -69,7 +69,7 @@ def print_table(runs, sort_key):
     runs = sorted(runs,
                   key=lambda r: (r.get(sort_key) is None, -(r.get(sort_key) or 0)))
 
-    # column header, width, value-formatter
+    
     cols = [
         ("name",       24, lambda r: r["name"][:24]),
         ("model",      10, lambda r: r["model"]),

@@ -33,10 +33,6 @@ import torch.nn.functional as F
 from dataset import CLASS_NAMES, get_dataloaders
 from models import build_model
 
-
-# --------------------------------------------------------------------------- #
-# Grad-CAM
-# --------------------------------------------------------------------------- #
 class GradCAM:
     """Standard Grad-CAM hooking a conv layer."""
 
@@ -81,10 +77,6 @@ def find_target_layer(model):
             last_conv = module
     return last_conv
 
-
-# --------------------------------------------------------------------------- #
-# Loading
-# --------------------------------------------------------------------------- #
 def load_model_from_checkpoint(args, device):
     """Recreate the architecture from history.json so ablation weights load."""
     model_kwargs = {}
@@ -126,10 +118,6 @@ def gather_predictions(model, loader, device):
             np.concatenate(probs),
             np.concatenate(images))
 
-
-# --------------------------------------------------------------------------- #
-# Plotting helpers
-# --------------------------------------------------------------------------- #
 def undo_normalize(img_chw):
     """Undo the dataset's mean=0.5, std=0.5 normalization so the displayed
     grayscale image looks natural."""
@@ -144,9 +132,6 @@ def overlay(ax, img, cam, title=None, fontsize=9):
     ax.axis("off")
 
 
-# --------------------------------------------------------------------------- #
-# The three figures
-# --------------------------------------------------------------------------- #
 def plot_overview(model, cam_tool, images, preds, labels, device, out_path,
                   examples_per_class=1):
     """2x5 grid: one correctly-classified example per class."""
@@ -250,10 +235,6 @@ def plot_misclassified(model, cam_tool, images, preds, labels, probs, device,
     plt.close()
     print(f"  saved {out_path}")
 
-
-# --------------------------------------------------------------------------- #
-# Main
-# --------------------------------------------------------------------------- #
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--data-root", required=True)
@@ -280,7 +261,7 @@ def main():
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # ---- model ----
+
     model = load_model_from_checkpoint(args, device)
     target = find_target_layer(model)
     if target is None:
@@ -289,7 +270,7 @@ def main():
         return
     cam_tool = GradCAM(model, target)
 
-    # ---- data ----
+
     _, _, test_loader = get_dataloaders(
         args.data_root,
         batch_size=args.batch_size,
@@ -304,7 +285,6 @@ def main():
     acc = (preds == labels).mean()
     print(f"Test accuracy: {acc:.4f}  ({(preds == labels).sum()}/{len(labels)})")
 
-    # ---- figures ----
     print("\nGenerating overview...")
     plot_overview(model, cam_tool, images, preds, labels, device,
                   out_dir / "gradcam_overview.png")

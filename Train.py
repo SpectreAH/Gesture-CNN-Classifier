@@ -72,7 +72,6 @@ def evaluate_loss_acc(model, loader, criterion, device):
     return total_loss / total, correct / total
 
 
-# You use these arguments if you want to modify or apply the same parameters for all
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--data-root", required=True, help="Path to leapGestRecog/")
@@ -84,7 +83,6 @@ def parse_args():
     p.add_argument("--image-size", type=int, default=128)
     p.add_argument("--optimizer", default="adam", choices=["adam", "sgd"])
     p.add_argument("--weight-decay", type=float, default=1e-4)
-    # ablation custom model (mainly for the custom CNN, but can be applied to others as well)
     p.add_argument("--no-bn", action="store_true",
                    help="(ablation) disable BatchNorm in the custom CNN")
     p.add_argument("--no-aug", action="store_true",
@@ -113,7 +111,6 @@ def main():
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Take care of data loading to be able to train and evaluate the model
     train_loader, val_loader, test_loader = get_dataloaders(
         args.data_root,
         batch_size=args.batch_size,
@@ -127,7 +124,6 @@ def main():
           f"Val: {len(val_loader.dataset)} | "
           f"Test: {len(test_loader.dataset)}")
 
-    # Build the model 
     model_kwargs = {}
     if args.model == "custom":
         model_kwargs = dict(use_bn=not args.no_bn, dropout=args.dropout)
@@ -137,7 +133,6 @@ def main():
                         image_size=args.image_size, **model_kwargs).to(device)
     print(f"Model: {args.model} | Trainable params: {count_params(model):,}")
 
-    # optimizer
     if args.optimizer == "adam":
         optimizer = Adam(model.parameters(), lr=args.lr,
                          weight_decay=args.weight_decay)
@@ -146,7 +141,6 @@ def main():
                         weight_decay=args.weight_decay)
     scheduler = CosineAnnealingLR(optimizer, T_max=args.epochs)
 
-    # Linear regression uses MSE on one-hot targets; everything else uses CE.
     if args.model in REGRESSION_MODELS:
         criterion = MSEOneHotLoss(num_classes=10)
         print(f"Loss: MSE on one-hot targets")
@@ -154,7 +148,6 @@ def main():
         criterion = nn.CrossEntropyLoss()
         print(f"Loss: CrossEntropy")
 
-    # training loop
     history = {"train_loss": [], "train_acc": [], "val_loss": [], "val_acc": []}
     best_val_acc = 0.0
     start = time.time()
@@ -183,12 +176,10 @@ def main():
     print(f"\nTraining complete in {total_time / 60:.1f} min. "
           f"Best val acc: {best_val_acc:.4f}")
 
-    # final test on the best model
     model.load_state_dict(torch.load(out_dir / "best.pt"))
     te_loss, te_acc = evaluate_loss_acc(model, test_loader, criterion, device)
     print(f"Test loss {te_loss:.4f} | Test acc {te_acc:.4f}")
 
-    # Enregistre 
     with open(out_dir / "history.json", "w") as f:
         json.dump({
             "config": vars(args),
