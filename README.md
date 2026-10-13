@@ -82,6 +82,7 @@ any of them to get its plots.
     
 ## Presentation
 [View the slides](slides/presentation.pdf)
+[Read the report](report/report.pdf)
 
 ## Key results
 | Model | Random split | Subject split |
