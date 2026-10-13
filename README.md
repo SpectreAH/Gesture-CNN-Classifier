@@ -80,3 +80,28 @@ any of them to get its plots.
 - ** Data leakage **
     A problem that arises is that the models test all the images doing so memorizing the "shape" of the hand which results in the 99.99 % accuracy and precision. But we know that it is not a real world application. So we should use a set for training one for testing and one for validating.
     
+## Presentation
+[View the slides](slides/presentation.pdf)
+
+## Key results
+| Model | Random split | Subject split |
+|---|---|---|
+| Linear regression | 60% | 51% |
+| Logistic regression | 77% | 63% |
+| MLP | 90% | 73% |
+| SmallCNN | 97% | 80% |
+| **Custom CNN** | **100%** | **87%** |
+
+- A random split puts the same people in training and test sets, which inflates accuracy by ~13 percentage points (subject leakage).
+- After hyperparameter tuning (lr 1e-3, dropout 0.3, weight decay 1e-4, Adam), the custom CNN reached ~98% on the subject split.
+- Ablations show BatchNorm matters most; dropout had no measurable effect.
+- Grad-CAM confirms the model focuses on the hand, not the background.
+
+## Dataset
+This project uses the [LeapGestRecog dataset](https://www.kaggle.com/datasets/gti-upm/leapgestrecog) (~2 GB, not included in this repo).
+1. Download it from Kaggle
+2. Extract it so the folder structure is `archive/leapGestRecog/00/01_palm/...`
+3. Run the training scripts as described above
+
+## Team
+Group project by Soen Souprayen, Alexandre Huet - Ajou University exchange semester.
